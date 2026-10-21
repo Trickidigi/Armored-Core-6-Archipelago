@@ -2,7 +2,7 @@ from worlds.AutoWorld import World
 from worlds.generic.Rules import set_rule
 from BaseClasses import MultiWorld
 
-from .locations import CYCLE_NAMES, SHOP_CHAPTERS
+from .locations import CYCLE_NAMES, SHOP_CHAPTERS, CHAPTER_PARTS
 
 def _prologue_region(cycle: int) -> str:
     prefix = "" if cycle == 0 else f"{CYCLE_NAMES[cycle]} "
@@ -30,14 +30,14 @@ def set_rules(world: World, multiworld: MultiWorld, player: int) -> None:
     # Spheres: NG 1-5, NG+ 6-10, NG++ 11-15.
     for cyc in range(world._num_cycles()):
         entrance = f"{_prologue_region(cyc)} -> {_chapter_region(cyc, 1, 1)}"
-            set_rule(
-                multiworld.get_entrance(entrance, player),
-                lambda state, it=f"{_prologue_region(cyc)} Complete":
-                    state.has(it, player),
-            )
+        set_rule(
+            multiworld.get_entrance(entrance, player),
+            lambda state, it=f"{_prologue_region(cyc)} Complete":
+                state.has(it, player),
+        )
             
         for ch in range(1, 5):
-            for part in range(2, CHAPTER_PARTS[ch]):
+            for part in range(1, CHAPTER_PARTS[ch]):
                 entrance = f"{_chapter_region(cyc, ch, part)} -> {_chapter_region(cyc, ch, part + 1)}"
                 set_rule(
                     multiworld.get_entrance(entrance, player),
@@ -52,7 +52,7 @@ def set_rules(world: World, multiworld: MultiWorld, player: int) -> None:
                     state.has(it, player),
             )
         
-        for part in range(2, CHAPTER_PARTS[5]):
+        for part in range(1, CHAPTER_PARTS[5]):
                 entrance = f"{_chapter_region(cyc, 5, part)} -> {_chapter_region(cyc, 5, part + 1)}"
                 set_rule(
                     multiworld.get_entrance(entrance, player),

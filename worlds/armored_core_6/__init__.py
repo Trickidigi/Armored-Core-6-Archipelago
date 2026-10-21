@@ -155,10 +155,10 @@ class ArmoredCore6World(World):
 
     def create_regions(self) -> None:
         def prologue_region(cycle: int) -> str:
-             prefix = "" if cycle == 0 else f"{CYCLE_NAMES[cycle]} "
+            prefix = "" if cycle == 0 else f"{CYCLE_NAMES[cycle]} "
             return f"{prefix}Prologue"
             
-        def chapter_region(cycle: int, chapter: int, part) -> str:
+        def chapter_region(cycle: int, chapter: int, part: int) -> str:
             prefix = "" if cycle == 0 else f"{CYCLE_NAMES[cycle]} "
             return f"{prefix}Chapter {chapter}.{part}"
 
@@ -232,26 +232,30 @@ class ArmoredCore6World(World):
             menu.connect(regions[f"Shop Ch{c}"], f"Menu -> Shop Ch{c}")
         for cyc in range(ncyc):
             regions[prologue_region(cyc)].connect(
-                region[chapter_region(cyc, 1, 1),
-                f"{prologue_region(cyc)} - > {region[chapter_region(cyc, 1, 1)]}")
+                regions[chapter_region(cyc, 1, 1)],
+                f"{prologue_region(cyc)} -> {chapter_region(cyc, 1, 1)}")
             
             for ch in range(1, 5):
-                for part in range(2, CHAPTER_PARTS[ch]):
+                for part in range(1, CHAPTER_PARTS[ch]):
                     a = regions[chapter_region(cyc, ch, part)]
                     b = regions[chapter_region(cyc, ch, part + 1)]
-                    a.connect(b, f"{chapter_region(cyc, ch)} -> {chapter_region(cyc, ch, part + 1)}")
+                    a.connect(b, f"{chapter_region(cyc, ch, part)} -> {chapter_region(cyc, ch, part + 1)}")
                     
-                regions[chapter_region(cyc, ch, CHAPTER_PARTS[ch]].connect(region[cyc, ch+1, 1])
+                regions[chapter_region(cyc, ch, CHAPTER_PARTS[ch])].connect(
+                    regions[chapter_region(cyc, ch+1, 1)],
+                f"{chapter_region(cyc, ch, CHAPTER_PARTS[ch])} -> {chapter_region(cyc, ch + 1, 1)}")
                     
-            for part in range(2, CHAPTER_PARTS[5]):
+            for part in range(1, CHAPTER_PARTS[5]):
                     a = regions[chapter_region(cyc, 5, part)]
                     b = regions[chapter_region(cyc, 5, part +1)]
-                    a.connect(b, f"{chapter_region(cyc, ch)} -> {chapter_region(cyc, ch + 1)}")
+                    a.connect(b, f"{chapter_region(cyc, 5, part)} -> {chapter_region(cyc, 5, part + 1)}")
                     
             if cyc + 1 < ncyc:
                 regions[chapter_region(cyc, 5, CHAPTER_PARTS[5])].connect(
                     regions[prologue_region(cyc + 1)],
-                    f"{chapter_region(cyc, 5, CHAPTER_PARTS[5]))} -> {prologue_region(cyc + 1)}")
+                    f"{chapter_region(cyc, 5, CHAPTER_PARTS[5])} -> {prologue_region(cyc + 1)}")
+
+        print(regions)
 
     def create_items(self) -> None:
         self._cached_bpc = self._compute_batches_per_ch()
